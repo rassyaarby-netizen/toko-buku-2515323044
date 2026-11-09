@@ -22,9 +22,10 @@ class DatabaseSeeder extends Seeder
             'email' => 'test@example.com',
         ]);*/
 
-        $this->call([
-            CategorySeeder::class,
-            BookSeeder::class,
+    $this->call([
+       CategorySeeder::class,
+       PublisherSeeder::class,
+       BookSeeder::class,
         ]);
     }
 }
