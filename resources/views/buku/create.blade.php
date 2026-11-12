@@ -69,6 +69,18 @@
             <div class="invalid-feedback">{{ $message }}</div>
             @enderror
         </div>
+        
+        <div class="mb-3">
+             <label for="stock" class="form-label">Stok Buku</label>
+             <input type="number" id="stock" name="stock"
+                    class="form-control @error('stock') is-invalid @enderror"
+                    value="{{ old('stock') }}"
+                    min="0" max="100000">
+             <small class="text-muted">Masukkan jumlah stok buku (0–100.000).</small>
+             @error('stock')
+             <div class="invalid-feedback">{{ $message }}</div>
+             @enderror
+        </div>
 
         <div class="mb-3">
             <label for="published_year" class="form-label">Tahun Terbit (opsional)</label>

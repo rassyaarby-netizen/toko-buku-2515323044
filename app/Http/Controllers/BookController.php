@@ -10,31 +10,65 @@ use Illuminate\Support\Facades\Storage;
 
 class BookController extends Controller
 {
-
     public function index()
     {
-        return view('buku.index', ['daftarBuku' => Book::with('category', 'publisher')->latest('id')->get()]);
+        $q = request('q');
+        $kategori = request('kategori');
+        $penerbit = request('penerbit');
+
+        $query = Book::with('category', 'publisher');
+
+        if ($q) {
+            $query->where(function ($subQuery) use ($q) {
+                $subQuery->where('title', 'like', "%{$q}%")
+                    ->orWhere('author_name', 'like', "%{$q}%");
+            });
+        }
+
+        if ($kategori) {
+            $query->where('category_id', $kategori);
+        }
+
+        if ($penerbit) {
+            $query->where('publisher_id', $penerbit);
+        }
+
+        return view('buku.index', [
+            'daftarBuku' => $query->latest('id')->paginate(3)->withQueryString(),
+            'daftarKategori' => Category::orderBy('name')->get(),
+            'daftarPenerbit' => Publisher::orderBy('name')->get(),
+        ]);
     }
 
     public function show($id)
     {
-       $buku = Book::with('category', 'publisher')->find($id);
+        $buku = Book::with(['category', 'publisher'])->find($id);
 
-       return view('buku.show', ['buku' => $buku, 'id' => $id]);
+        $bukuSerupa = $buku
+            ? $buku->category->books()->whereKeyNot($buku->id)->latest('id')->limit(3)->get()
+            : collect();
+
+        return view('buku.show', [
+            'buku' => $buku,
+            'id' => $id,
+            'bukuSerupa' => $bukuSerupa,
+        ]);
     }
 
     public function create()
     {
-       return view('buku.create', ['daftarKategori' => Category::orderBy('name')->get(), 'daftarPenerbit' => Publisher::orderBy('name')->get()]);
+        return view('buku.create', [
+            'daftarKategori' => Category::orderBy('name')->get(),
+            'daftarPenerbit' => Publisher::orderBy('name')->get()
+        ]);
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate($this->aturan(), $this->pesan());
 
-        // Isi cover di $validated adalah objek berkas upload (atau null), bukan
-        // nama berkas untuk database -- buang dulu, lalu isi dengan hasil store().
         unset($validated['cover']);
+
         if ($request->hasFile('cover')) {
             $validated['cover'] = $request->file('cover')->store('sampul', 'public');
         }
@@ -52,9 +86,10 @@ class BookController extends Controller
             'author_name' => 'required|string|max:255',
             'category_id' => 'required|exists:categories,id',
             'publisher_id' => 'required|exists:publishers,id',
-            'price' => 'required|numeric|min:0|max:99999999',
+            'price' => 'required|integer|min:0|max:99999999',
+            'stock' => 'required|integer|min:0|max:100000',
             'cover' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-            'published_year' => 'nullable|integer|min:1900|max:2100'
+            'published_year' => 'nullable|integer|min:1900|max:2100',
         ];
     }
 
@@ -70,9 +105,9 @@ class BookController extends Controller
             'publisher_id.required' => 'Pilih salah satu penerbit.',
             'publisher_id.exists' => 'Penerbit yang dipilih tidak ditemukan.',
             'price.required' => 'Harga wajib diisi.',
-            'price.numeric' => 'Harga harus berupa angka.',
             'price.min' => 'Harga tidak boleh negatif.',
             'price.max' => 'Harga terlalu besar (maksimal 99.999.999).',
+            'price.integer' => 'Harga harus berupa bilangan bulat.',
             'cover.image' => 'Sampul harus berupa gambar.',
             'cover.mimes' => 'Sampul harus berformat JPG atau PNG.',
             'cover.max' => 'Ukuran sampul maksimal 2 MB.',
@@ -80,6 +115,10 @@ class BookController extends Controller
             'published_year.integer' => 'Tahun terbit harus berupa angka.',
             'published_year.min' => 'Tahun terbit minimal tahun 1900.',
             'published_year.max' => 'Tahun terbit maksimal tahun 2100.',
+            'stock.required' => 'Stok buku wajib diisi.',
+            'stock.integer' => 'Stok harus berupa bilangan bulat.',
+            'stock.min' => 'Stok tidak boleh negatif.',
+            'stock.max' => 'Stok maksimal 100.000.',
         ];
     }
 
@@ -99,7 +138,9 @@ class BookController extends Controller
         $validated = $request->validate($this->aturan(), $this->pesan());
 
         unset($validated['cover']);
+
         $coverLama = null;
+
         if ($request->hasFile('cover')) {
             $coverLama = $buku->cover;
             $validated['cover'] = $request->file('cover')->store('sampul', 'public');
@@ -128,7 +169,4 @@ class BookController extends Controller
         return redirect()->route('buku.index')
             ->with('success', 'Buku berhasil dihapus.');
     }
-
-
-
 }
