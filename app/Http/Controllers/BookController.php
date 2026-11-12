@@ -29,9 +29,9 @@ class BookController extends Controller
             $query->where('category_id', $kategori);
         }
 
-        if ($penerbit) {
+        $query->when($penerbit, function ($query, $penerbit) {
             $query->where('publisher_id', $penerbit);
-        }
+        });
 
         return view('buku.index', [
             'daftarBuku' => $query->latest('id')->paginate(3)->withQueryString(),
