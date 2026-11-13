@@ -3,7 +3,7 @@
 
 @extends('layouts.app')
 
-@section('title', ($buku->title ?? 'Buku tidak ditemukan') . ' — BookStore')
+@section('title', ($buku->title ?? 'Buku tidak ditemukan') . ' - BookStore')
 
 @section('content')
     @if ($buku)
@@ -17,7 +17,10 @@
 
                 <h1>{{ $buku->title }}</h1>
 
-                <p class="text-muted mb-1">Penulis: {{ $buku->author_name }}</p>
+                <p class="text-muted mb-1">
+                    Penulis: {{ $buku->author?->name ?? $buku->author_name ?? 'belum diisi' }}
+                </p>
+
                 <p class="text-muted">Penerbit: {{ $buku->publisher?->name ?? 'belum diisi' }}</p>
 
                 @if ($buku->published_year)

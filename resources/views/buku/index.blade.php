@@ -3,7 +3,7 @@
 
 @extends('layouts.app')
 
-@section('title', 'Daftar Buku — BookStore')
+@section('title', 'Daftar Buku - BookStore')
 
 @section('content')
     <div class="d-flex justify-content-between align-items-center mb-4">
@@ -36,7 +36,6 @@
                 </select>
             </div>
 
-            {{-- Filter Penerbit --}}
             <div class="col-md-3">
                 <select name="penerbit" class="form-select">
                     <option value="">Semua Penerbit</option>
@@ -71,7 +70,7 @@
                         <h5 class="card-title">{{ $buku->title }}</h5>
 
                         <p class="card-text text-muted mb-1">
-                            {{ $buku->author_name }}
+                            {{ $buku->author?->name ?? $buku->author_name ?? 'Penulis belum diisi' }}
                         </p>
 
                         <p class="card-text small text-muted mb-1">

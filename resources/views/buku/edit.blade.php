@@ -1,6 +1,7 @@
+
 @extends('layouts.app')
 
-@section('title', 'Ubah Buku — BookStore')
+@section('title', 'Ubah Buku - BookStore')
 
 @section('content')
     <h1 class="mb-4">Ubah Buku</h1>
@@ -15,17 +16,33 @@
                    class="form-control @error('title') is-invalid @enderror"
                    value="{{ old('title', $buku->title) }}">
             @error('title')
-            <div class="invalid-feedback">{{ $message }}</div>
+                <div class="invalid-feedback">{{ $message }}</div>
             @enderror
         </div>
 
         <div class="mb-3">
-            <label for="author_name" class="form-label">Penulis</label>
+            <label for="author_id" class="form-label">Pilih Penulis</label>
+            <select id="author_id" name="author_id"
+                    class="form-select @error('author_id') is-invalid @enderror">
+                <option value="">-- Pilih penulis --</option>
+                @foreach ($daftarPenulis as $penulis)
+                    <option value="{{ $penulis->id }}" @selected(old('author_id', $buku->author_id) == $penulis->id)>
+                        {{ $penulis->name }}
+                    </option>
+                @endforeach
+            </select>
+            @error('author_id')
+                <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
+        </div>
+
+        <div class="mb-3">
+            <label for="author_name" class="form-label">Nama Penulis (Data Lama)</label>
             <input type="text" id="author_name" name="author_name"
                    class="form-control @error('author_name') is-invalid @enderror"
                    value="{{ old('author_name', $buku->author_name) }}">
             @error('author_name')
-            <div class="invalid-feedback">{{ $message }}</div>
+                <div class="invalid-feedback">{{ $message }}</div>
             @enderror
         </div>
 
@@ -41,7 +58,7 @@
                 @endforeach
             </select>
             @error('category_id')
-            <div class="invalid-feedback">{{ $message }}</div>
+                <div class="invalid-feedback">{{ $message }}</div>
             @enderror
         </div>
 
@@ -57,7 +74,7 @@
                 @endforeach
             </select>
             @error('publisher_id')
-            <div class="invalid-feedback">{{ $message }}</div>
+                <div class="invalid-feedback">{{ $message }}</div>
             @enderror
         </div>
 
@@ -67,23 +84,21 @@
                    class="form-control @error('price') is-invalid @enderror"
                    value="{{ old('price', (int) $buku->price) }}">
             @error('price')
-            <div class="invalid-feedback">{{ $message }}</div>
+                <div class="invalid-feedback">{{ $message }}</div>
             @enderror
         </div>
 
-
         <div class="mb-3">
-             <label for="stock" class="form-label">Stok Buku</label>
-             <input type="number" id="stock" name="stock"
-                    class="form-control @error('stock') is-invalid @enderror"
-                    value="{{ old('stock', $buku->stock) }}"
-                    min="0" max="100000">
-             <small class="text-muted">Masukkan jumlah stok buku (0–100.000).</small>
-             @error('stock')
-             <div class="invalid-feedback">{{ $message }}</div>
-             @enderror
+            <label for="stock" class="form-label">Stok Buku</label>
+            <input type="number" id="stock" name="stock"
+                   class="form-control @error('stock') is-invalid @enderror"
+                   value="{{ old('stock', $buku->stock) }}"
+                   min="0" max="100000">
+            <small class="text-muted">Masukkan jumlah stok buku (0–100.000).</small>
+            @error('stock')
+                <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
         </div>
-
 
         <div class="mb-3">
             <label for="published_year" class="form-label">Tahun Terbit (opsional)</label>
@@ -91,7 +106,7 @@
                    class="form-control @error('published_year') is-invalid @enderror"
                    value="{{ old('published_year', $buku->published_year) }}">
             @error('published_year')
-            <div class="invalid-feedback">{{ $message }}</div>
+                <div class="invalid-feedback">{{ $message }}</div>
             @enderror
         </div>
 
@@ -104,7 +119,7 @@
             <input type="file" id="cover" name="cover"
                    class="form-control @error('cover') is-invalid @enderror">
             @error('cover')
-            <div class="invalid-feedback">{{ $message }}</div>
+                <div class="invalid-feedback">{{ $message }}</div>
             @enderror
         </div>
 
